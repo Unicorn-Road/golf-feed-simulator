@@ -29,17 +29,37 @@ export async function POST(request: NextRequest) {
     
     startSimulation(durationMinutes, startDay);
     
-    return NextResponse.json({
-      success: true,
-      message: 'Simulation started',
-      duration: durationMinutes * 60,
-      durationMinutes,
-      startDay,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        message: 'Simulation started',
+        duration: durationMinutes * 60,
+        durationMinutes,
+        startDay,
+      },
+      {
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type',
+        },
+      }
+    );
   } catch (error) {
     return NextResponse.json(
       { error: 'Failed to start simulation' },
       { status: 500 }
     );
   }
+}
+
+// Handle OPTIONS preflight request
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+    },
+  });
 }

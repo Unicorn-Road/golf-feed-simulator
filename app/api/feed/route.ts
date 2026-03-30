@@ -1,15 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { TournamentSimulator } from '@/lib/simulator';
 import { buildXML } from '@/lib/xmlBuilder';
+import { getCurrentProgress, cleanupInactiveSimulation } from '@/lib/simulationState';
 
 const simulator = new TournamentSimulator();
 
 export async function GET(request: NextRequest) {
+  // Clean up old simulations
+  cleanupInactiveSimulation();
+  
   const searchParams = request.nextUrl.searchParams;
   const progressParam = searchParams.get('progress');
   
-  // Default to 0 if no progress specified
-  const progress = progressParam ? parseFloat(progressParam) : 0;
+  // If progress is specified, use it; otherwise use server-side simulation state
+  const progress = progressParam !== null 
+    ? parseFloat(progressParam) 
+    : getCurrentProgress();
   
   // Clamp progress between 0 and 100
   const clampedProgress = Math.max(0, Math.min(100, progress));

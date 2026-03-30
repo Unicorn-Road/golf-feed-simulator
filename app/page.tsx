@@ -20,51 +20,72 @@ export default function Home() {
     }
   };
 
-  const startSimulation = (durationMinutes: number) => {
+  const startSimulation = async (durationMinutes: number) => {
     // Stop any existing simulation
     stopSimulation();
 
-    // Reset state
-    setProgress(0);
-    setElapsedTime(0);
-    setIsRunning(true);
-    startTimeRef.current = Date.now();
-
-    const durationMs = durationMinutes * 60 * 1000;
-    const updateInterval = 30000; // 30 seconds
-    const totalUpdates = durationMs / updateInterval;
-    const progressIncrement = 100 / totalUpdates;
-
-    let currentProgress = 0;
-
-    // Initial fetch
-    fetchXML(0);
-
-    // Set up interval for updates
-    intervalRef.current = setInterval(() => {
-      currentProgress += progressIncrement;
-      const elapsed = Date.now() - startTimeRef.current;
-
-      if (currentProgress >= 100 || elapsed >= durationMs) {
-        // Simulation complete
-        setProgress(100);
-        setElapsedTime(durationMs / 1000);
-        fetchXML(100);
-        stopSimulation();
-      } else {
-        setProgress(currentProgress);
-        setElapsedTime(elapsed / 1000);
-        fetchXML(currentProgress);
+    try {
+      // Start server-side simulation
+      const durationSeconds = durationMinutes * 60;
+      const response = await fetch(`/api/simulation/start?duration=${durationSeconds}`, {
+        method: 'POST',
+      });
+      
+      if (!response.ok) {
+        console.error('Failed to start simulation');
+        return;
       }
-    }, updateInterval);
+
+      // Reset state
+      setProgress(0);
+      setElapsedTime(0);
+      setIsRunning(true);
+      startTimeRef.current = Date.now();
+
+      // Poll for updates every 5 seconds
+      intervalRef.current = setInterval(async () => {
+        try {
+          // Fetch current status from server
+          const statusResponse = await fetch('/api/simulation/status');
+          const status = await statusResponse.json();
+          
+          if (status.isActive) {
+            setProgress(status.progress);
+            setElapsedTime(status.elapsed);
+            // Fetch XML without progress param to use server state
+            fetchXML(status.progress);
+          } else {
+            // Simulation complete
+            setProgress(100);
+            setElapsedTime(status.duration);
+            fetchXML(100);
+            stopSimulation();
+          }
+        } catch (error) {
+          console.error('Error polling simulation status:', error);
+        }
+      }, 5000); // Poll every 5 seconds
+      
+      // Initial fetch
+      fetchXML(0);
+    } catch (error) {
+      console.error('Error starting simulation:', error);
+    }
   };
 
-  const stopSimulation = () => {
+  const stopSimulation = async () => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
     setIsRunning(false);
+    
+    // Stop server-side simulation
+    try {
+      await fetch('/api/simulation/stop', { method: 'POST' });
+    } catch (error) {
+      console.error('Error stopping simulation:', error);
+    }
   };
 
   useEffect(() => {

@@ -177,27 +177,34 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="flex gap-4 mb-6">
+          <div className="flex gap-4 mb-6 flex-wrap">
             <button
               onClick={() => startSimulation(1)}
               disabled={isRunning}
               className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium"
             >
-              1 Minute Simulation
+              1 Minute
             </button>
             <button
               onClick={() => startSimulation(2)}
               disabled={isRunning}
               className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium"
             >
-              2 Minute Simulation
+              2 Minutes
             </button>
             <button
               onClick={() => startSimulation(5)}
               disabled={isRunning}
               className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium"
             >
-              5 Minute Simulation
+              5 Minutes
+            </button>
+            <button
+              onClick={() => startSimulation(10)}
+              disabled={isRunning}
+              className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium"
+            >
+              10 Minutes
             </button>
             <button
               onClick={stopSimulation}
@@ -239,7 +246,10 @@ export default function Home() {
               <li><strong>Day 4:</strong> Round 3 complete → Tournament complete (75-100%)</li>
             </ul>
             <p className="mt-2">
-              Updates occur every 5 seconds during simulation.
+              UI updates every 5 seconds. External apps should poll /api/feed every 30 seconds.
+            </p>
+            <p className="text-xs mt-1">
+              <strong>Tip:</strong> Use 10-minute simulation for more gradual, realistic updates.
             </p>
           </div>
         </div>

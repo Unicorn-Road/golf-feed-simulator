@@ -6,17 +6,19 @@ interface SimulationState {
   startTime: number;
   durationMs: number;
   lastAccessed: number;
+  startDay: number; // 1-4 representing which day/round to start from
 }
 
 // In-memory state (resets on cold start, which is fine for a simulator)
 let currentSimulation: SimulationState | null = null;
 
-export function startSimulation(durationMinutes: number): void {
+export function startSimulation(durationMinutes: number, startDay: number = 1): void {
   currentSimulation = {
     isActive: true,
     startTime: Date.now(),
     durationMs: durationMinutes * 60 * 1000,
     lastAccessed: Date.now(),
+    startDay: Math.max(1, Math.min(4, startDay)), // Clamp between 1-4
   };
 }
 
@@ -37,13 +39,19 @@ export function getCurrentProgress(): number {
     return 100;
   }
 
-  // Calculate progress (0-100)
-  const progress = (elapsed / currentSimulation.durationMs) * 100;
+  // Calculate progress within the current day/round
+  // Each day represents 25% of the tournament (4 days = 100%)
+  const startProgress = (currentSimulation.startDay - 1) * 25;
+  const endProgress = currentSimulation.startDay * 25;
+  
+  // Calculate relative progress within this day
+  const relativeProgress = (elapsed / currentSimulation.durationMs) * 25;
+  const totalProgress = startProgress + relativeProgress;
   
   // Update last accessed time
   currentSimulation.lastAccessed = Date.now();
   
-  return Math.min(100, Math.max(0, progress));
+  return Math.min(100, Math.max(0, totalProgress));
 }
 
 export function getSimulationStatus(): {

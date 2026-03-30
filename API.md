@@ -11,19 +11,27 @@ The simulator now supports **server-side state management**, allowing external a
 Start a new server-side simulation.
 
 ```
-POST /api/simulation/start?duration={seconds}
+POST /api/simulation/start?duration={seconds}&startDay={1-4}
 ```
 
 **Parameters:**
 - `duration` (optional): Duration in seconds (60-1800). Default: 300 (5 minutes)
+- `startDay` (optional): Which day/round to start from (1-4). Default: 1
+  - Day 1: Tournament start → Round 1 complete (0-25%)
+  - Day 2: Round 1 complete → Round 2 complete (25-50%)
+  - Day 3: Round 2 complete → Round 3 complete (50-75%)
+  - Day 4: Round 3 complete → Tournament complete (75-100%)
 
-**Example:**
+**Examples:**
 ```bash
-# Start a 5-minute simulation
-curl -X POST "https://your-domain.vercel.app/api/simulation/start?duration=300"
+# Start a 5-minute simulation from Day 1
+curl -X POST "https://your-domain.vercel.app/api/simulation/start?duration=300&startDay=1"
 
-# Start a 2-minute simulation
-curl -X POST "https://your-domain.vercel.app/api/simulation/start?duration=120"
+# Start a 2-minute simulation from Day 3
+curl -X POST "https://your-domain.vercel.app/api/simulation/start?duration=120&startDay=3"
+
+# Quick Day 4 finale test
+curl -X POST "https://your-domain.vercel.app/api/simulation/start?duration=60&startDay=4"
 ```
 
 **Response:**
@@ -32,7 +40,8 @@ curl -X POST "https://your-domain.vercel.app/api/simulation/start?duration=120"
   "success": true,
   "message": "Simulation started",
   "duration": 300,
-  "durationMinutes": 5
+  "durationMinutes": 5,
+  "startDay": 1
 }
 ```
 

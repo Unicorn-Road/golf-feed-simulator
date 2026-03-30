@@ -7,6 +7,7 @@ export default function Home() {
   const [isRunning, setIsRunning] = useState(false);
   const [progress, setProgress] = useState(0);
   const [elapsedTime, setElapsedTime] = useState(0);
+  const [startDay, setStartDay] = useState(1);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
 
@@ -27,7 +28,7 @@ export default function Home() {
     try {
       // Start server-side simulation
       const durationSeconds = durationMinutes * 60;
-      const response = await fetch(`/api/simulation/start?duration=${durationSeconds}`, {
+      const response = await fetch(`/api/simulation/start?duration=${durationSeconds}&startDay=${startDay}`, {
         method: 'POST',
       });
       
@@ -121,6 +122,61 @@ export default function Home() {
             Simulation Controls
           </h2>
 
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Start from Day/Round:
+            </label>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setStartDay(1)}
+                disabled={isRunning}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  startDay === 1
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                } disabled:opacity-50 disabled:cursor-not-allowed`}
+              >
+                Day 1
+              </button>
+              <button
+                onClick={() => setStartDay(2)}
+                disabled={isRunning}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  startDay === 2
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                } disabled:opacity-50 disabled:cursor-not-allowed`}
+              >
+                Day 2
+              </button>
+              <button
+                onClick={() => setStartDay(3)}
+                disabled={isRunning}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  startDay === 3
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                } disabled:opacity-50 disabled:cursor-not-allowed`}
+              >
+                Day 3
+              </button>
+              <button
+                onClick={() => setStartDay(4)}
+                disabled={isRunning}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  startDay === 4
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                } disabled:opacity-50 disabled:cursor-not-allowed`}
+              >
+                Day 4
+              </button>
+            </div>
+            <p className="text-xs text-gray-500 mt-2">
+              Simulation will start from the beginning of the selected day's round
+            </p>
+          </div>
+
           <div className="flex gap-4 mb-6">
             <button
               onClick={() => startSimulation(1)}
@@ -173,16 +229,18 @@ export default function Home() {
 
           <div className="text-sm text-gray-600 space-y-1">
             <p>
-              <strong>How it works:</strong> The simulation updates every 30
-              seconds, progressively revealing:
+              <strong>How it works:</strong> Select a starting day and duration. 
+              The simulation will progress through that day's round in the selected time:
             </p>
             <ul className="list-disc list-inside ml-4 space-y-1">
-              <li>0%: Tournament scheduled, tee times only</li>
-              <li>0-25%: Round 1 in progress (hole-by-hole scores)</li>
-              <li>25-50%: Round 1 complete, Round 2 in progress</li>
-              <li>50-75%: Round 2 complete, Round 3 in progress</li>
-              <li>75-100%: Round 3 complete, Round 4 in progress/complete</li>
+              <li><strong>Day 1:</strong> Tournament start → Round 1 completion (0-25%)</li>
+              <li><strong>Day 2:</strong> Round 1 complete → Round 2 completion (25-50%)</li>
+              <li><strong>Day 3:</strong> Round 2 complete → Round 3 completion (50-75%)</li>
+              <li><strong>Day 4:</strong> Round 3 complete → Tournament complete (75-100%)</li>
             </ul>
+            <p className="mt-2">
+              Updates occur every 5 seconds during simulation.
+            </p>
           </div>
         </div>
 

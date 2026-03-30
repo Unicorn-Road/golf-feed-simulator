@@ -89,6 +89,19 @@ export default function Home() {
     }
   };
 
+  const resetSimulation = async () => {
+    // Stop any running simulation
+    await stopSimulation();
+    
+    // Reset UI state
+    setProgress(0);
+    setElapsedTime(0);
+    setStartDay(1);
+    
+    // Fetch fresh XML at 0%
+    fetchXML(0);
+  };
+
   useEffect(() => {
     // Initial load
     fetchXML(0);
@@ -212,6 +225,13 @@ export default function Home() {
               className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium"
             >
               Stop
+            </button>
+            <button
+              onClick={resetSimulation}
+              disabled={isRunning}
+              className="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium"
+            >
+              Reset
             </button>
           </div>
 
